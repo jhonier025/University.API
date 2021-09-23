@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=10.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.10.1.1\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -53,6 +56,7 @@
     <Compile Include="DTOs\CourseDTO.cs" />
     <Compile Include="DTOs\DepartmentDTO.cs" />
     <Compile Include="DTOs\InstructorDTO.cs" />
+    <Compile Include="DTOs\MapperConfig.cs" />
     <Compile Include="DTOs\OfficeDTO.cs" />
     <Compile Include="DTOs\StudentDTO.cs" />
     <Compile Include="Models\Course.cs">
@@ -92,6 +96,12 @@
       <DependentUpon>UniversityModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ICourseRepository.cs" />
+    <Compile Include="Repositories\IGenericRepository.cs" />
+    <Compile Include="Repositories\Implements\CourseRepository.cs" />
+    <Compile Include="Repositories\Implements\GenericRepository.cs" />
+    <Compile Include="Repositories\Implements\StudentRepository.cs" />
+    <Compile Include="Repositories\IStudentRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="Models\UniversityModel.edmx">
@@ -121,5 +131,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

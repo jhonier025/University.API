@@ -1,48 +1,59 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using University.BL.DTOs;
 using University.BL.Models;
+using University.BL.Repositories.Implements;
+using AutoMapper;
 
 namespace University.API.Controllers
 {    
     [RoutePrefix("api/Students")]
     public class StudentsController : ApiController
     {
-        private readonly UniversityEntities constext = new UniversityEntities();
-        [HttpGet]
-        //[Route("GetAll")]
-        public IHttpActionResult GetAll()
+        private readonly IMapper mapper;
+        private readonly StudentRepository studentRepository = new StudentRepository(new UniversityEntities());
+
+
+        public StudentsController()
         {
-            var students = constext.Student.ToList();
-            var studentsDTO = students.Select(x => new StudentDTO
-            {
-                ID = x.ID,
-                FirstMidName = x.FirstMidName,
-                LastName = x.LastName,
-                EnrollmentDate = x.EnrollmentDate.Value
-                
-            }).ToList();
+            this.mapper = WebApiApplication.MapperConfiguration.CreateMapper();
+        }
+
+        /// <summary>
+        /// Crear un objeto del estudiante
+        /// </summary>
+        /// <returns>Obejto estudiante</returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        
+        [HttpGet]
+       
+        public async Task<IHttpActionResult> GetAll()
+        {
+            var students = await studentRepository.GetAll();
+            var studentsDTO = students.Select(x => mapper.Map<StudentDTO>(x));
+           
 
         
             return Ok(studentsDTO);
         }
+        /// <summary>
+        /// Crear un objeto del estudiante
+        /// </summary>
+        /// <param name="id">Objeto de estudiante</param>
+        /// <returns>Obejto estudiante</returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        
 
         [HttpGet]
        
-        public IHttpActionResult GetById(int id)
+        public async Task<IHttpActionResult> GetById(int id)
         {
-            var students = constext.Student.Find(id);
+            var student = await studentRepository.GetById(id);
 
-            var studentsDTO = new StudentDTO
-            {
-                ID = students.ID,
-                FirstMidName = students.FirstMidName,
-                LastName = students.LastName,
-                EnrollmentDate = students.EnrollmentDate.Value
-
-            };
-
+            var studentsDTO = mapper.Map<StudentDTO>(student);
+          
 
             return Ok(studentsDTO);
         }
@@ -56,21 +67,17 @@ namespace University.API.Controllers
         /// </response>
         /// <response code="500">InternelServerError. Se ha prensentado un error.</response>
         [HttpPost]
-        public IHttpActionResult Create(StudentDTO studentDTO)
+        public async Task<IHttpActionResult> Create(StudentDTO studentDTO)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var student = constext.Student.Add(new Student
-                {
-                    FirstMidName = studentDTO.FirstMidName,
-                    LastName = studentDTO.LastName,
-                    EnrollmentDate = studentDTO.EnrollmentDate
-                });
+                var student = mapper.Map<Student>(studentDTO);
+                 student = await studentRepository.Insert(student);
 
-                constext.SaveChanges();
+                
 
                 studentDTO.ID = student.ID;
 
@@ -81,9 +88,19 @@ namespace University.API.Controllers
                 return InternalServerError(ex);
             }
         }
+        /// <summary>
+        /// Crear un objeto del estudiante
+        /// </summary>
+        /// <param name="id">objeto del estudiante</param>
+        /// <param name="studentDTO">objeto del estudiante</param>
+        /// <returns>objeto del estudiante</returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        /// <response code="400">BadRequest. No se cumple con la validacion del modelo.
+        /// </response>
+        /// <response code="500">InternelServerError. Se ha prensentado un error.</response>
 
         [HttpPut]
-        public IHttpActionResult Edit(int id,StudentDTO studentDTO)
+        public async Task<IHttpActionResult>Edit(int id, StudentDTO studentDTO)
         {
             try
             {
@@ -93,16 +110,20 @@ namespace University.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var student = constext.Student.Find(id);
-                if (student == null)
-                    return NotFound();
+                var student = await studentRepository.GetById(id);
+                if (student == null) return NotFound();
 
+                // Update Field
                 student.LastName = studentDTO.LastName;
                 student.FirstMidName = studentDTO.FirstMidName;
                 student.EnrollmentDate = studentDTO.EnrollmentDate;
 
-                constext.SaveChanges();
-                                
+                //Update All
+                //student = mapper.Map<Student>(studentDTO);
+
+
+
+                await studentRepository.Update(student);
                 return Ok(studentDTO);
             }
             catch (Exception ex)
@@ -111,21 +132,30 @@ namespace University.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Crear un objeto del estudiante
+        /// </summary>
+        /// <param name="id">C objeto del estudiante</param>
+        /// <returns></returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        /// <response code="400">BadRequest. No se cumple con la validacion del modelo.
+        /// </response>
+        /// <response code="500">InternelServerError. Se ha prensentado un error.</response> 
+
         [HttpDelete]
-        public IHttpActionResult Delete(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             try
             {
-                
-                var student = constext.Student.Find(id);
+
+                var student = await studentRepository.GetById(id);
                 if (student == null)
                     return NotFound();
 
-                if (constext.Enrollment.Any(x => x.StudentID == id))
-                    throw new Exception("Dependencia");
+               // if (context.Enrollment.Any(x => x.StudentID == id))
+                 //   throw new Exception("Dependencia");
 
-                constext.Student.Remove(student);                             
-                constext.SaveChanges();
+                await studentRepository.Delete(id);
 
                 return Ok();
             }
