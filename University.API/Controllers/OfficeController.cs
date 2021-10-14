@@ -95,7 +95,7 @@ namespace University.API.Controllers
         /// Crear un objeto del office
         /// </summary>
         /// <param name="id">objeto del officce</param>
-        /// <param name="studentDTO">objeto del office</param>
+        /// <param name="officeDTO">objeto del office</param>
         /// <returns>objeto del estudiante</returns>
         /// <response code="200">ok. Devuelve el objeto solicitado.</response>
         /// <response code="400">BadRequest. No se cumple con la validacion del modelo.

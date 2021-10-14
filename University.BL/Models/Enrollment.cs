@@ -22,6 +22,8 @@ namespace University.BL.Models
         public virtual Course Course { get; set; }
         public virtual Student Student { get; set; }
         public int DepartmentID { get; set; }
+        public int InstructorID { get; set; }
+
         public int OfficeAssignmentID { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using University.BL.DTOs;
 using University.BL.Models;
 
@@ -62,7 +63,112 @@ namespace University.API.Controllers
 
             return Ok(instructorDTO);
         }
+
+        /// <summary>
+        /// Crear un objeto del intructor
+        /// </summary> 
+        /// <param name="instructorDTO">objeto del intructot</param>
+        /// <returns>objeto del instructor</returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        /// <response code="400">BadRequest. No se cumple con la validacion del modelo.
+        /// </response>
+        /// <response code="500">InternelServerError. Se ha prensentado un error.</response>
+        [HttpPost]
+        public IHttpActionResult Create(Instructor instructorDTO)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var instructor = context.Instructor.Add(new Instructor
+                {
+                    LastName = instructorDTO.LastName,
+                    FirstMidName = instructorDTO.FirstMidName,
+                    HireDate = instructorDTO.HireDate.Value
+                });
+
+                context.SaveChanges();
+
+                instructorDTO.ID = instructor.ID;
+
+                return Ok(instructorDTO);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        /// <summary>
+        /// Crear un objeto del instructor
+        /// </summary>
+        /// <param name="id">objeto del intructor</param>
+        /// <param name="instructorDTO">objeto del instructor</param>
+        /// <returns>objeto del insructor</returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        /// <response code="400">BadRequest. No se cumple con la validacion del modelo.
+        /// </response>
+        /// <response code="500">InternelServerError. Se ha prensentado un error.</response>
+
+        [HttpPut]
+        public IHttpActionResult Edit(int id, InstructorDTO instructorDTO)
+        {
+            try
+            {
+                if (id != instructorDTO.ID)
+                    return BadRequest();
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var instructor = context.Instructor.Find(id);
+                if (instructor == null) return NotFound();
+
+                instructor.ID = instructorDTO.ID;
+
+
+                context.SaveChanges();
+                return Ok(instructorDTO);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Crear un objeto del instructor
+        /// </summary>
+        /// <param name="id">C objeto del instructor</param>
+        /// <returns></returns>
+        /// <response code="200">ok. Devuelve el objeto solicitado.</response>
+        /// <response code="400">BadRequest. No se cumple con la validacion del modelo.
+        /// </response>
+        /// <response code="500">InternelServerError. Se ha prensentado un error.</response> 
+
+        [HttpDelete]
+        public IHttpActionResult Delete(int id)
+        {
+            try
+            {
+
+                var instructor = context.Instructor.Find(id);
+                if (instructor == null)
+                    return NotFound();
+
+                if (context.Enrollment.Any(x => x.InstructorID == id))
+                    throw new Exception("Dependencia");
+
+                context.Instructor.Remove(instructor);
+                context.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
     }
-
 }
-

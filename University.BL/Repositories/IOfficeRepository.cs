@@ -2,7 +2,7 @@
 
 namespace University.BL.Repositories
 {
-    public interface ICourseRepository : IGenericRepository<Course> 
+    public interface IOfficeRepository : IGenericRepository<OfficeAssignment>
     {
     }
 }
